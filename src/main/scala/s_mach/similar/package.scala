@@ -52,7 +52,7 @@ package object similar {
 
    */
   implicit class SMach_Similar_PimpMyString(val self: String) extends AnyVal {
-    def chargrams: Iterator[Char] = ???
+    def chargrams: Iterator[Char] = self.toCharArray.iterator
     def wordgrams: Iterator[Word] = ???
     def ngrams(matcher: Regex) : Iterator[String] = ???
   }

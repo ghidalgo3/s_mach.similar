@@ -19,7 +19,7 @@ object SimilarOps {
 
   // http://en.wikipedia.org/wiki/Levenshtein_distance
   def levenshteinDistance(s1: String, s2: String) : Int = {
-    def min(nums: Int*): Int = nums.min
+    def min(numbers: Int*): Int = numbers.min
     val lenStr1 = s1.length
     val lenStr2 = s2.length
 
@@ -43,7 +43,11 @@ object SimilarOps {
 
 
   // http://en.wikipedia.org/wiki/Hamming_distance
-  def hammingDistance(s1: String, s2: String) : Int = ???
+  def hammingDistance(s1: String, s2: String) : Int = {
+    if (s1.length != s2.length) throw new IllegalArgumentException("Strings must be of equal length")
+    levenshteinDistance(s1, s2)
+  }
+
 
   // http://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm
   def needlemanWunsch(s1: String, s2: String) : Int = ???
