@@ -1,13 +1,15 @@
 package s_mach.similar
 
-import scala.collection.mutable
+//import scala.collection.mutable
 
+/**
+ * Utility trait for being able to differentiate instances of A's
+ *
+ * @tparam A type
+ */
 trait CanSimilar[A] {
   def similar(a1: A, a2: A) : Double
 
-//  def fSimilar(a1: A, a2: A) : Double = {
-//    if(a1.eq(a2)) 1.0 else similar(a1,a2)
-//  }
 
   def cartesianProduct(ma1: IndexedSeq[A], ma2: IndexedSeq[A]) : IndexedSeq[IndexedSeq[Double]] = {
     ma1.map(a => ma2.map(similar(a,_)))
@@ -21,6 +23,9 @@ trait CanSimilar[A] {
   }
 
   def selfCartesianProduct(ma: IndexedSeq[A]) : IndexedSeq[IndexedSeq[Double]] = {
-    ma.map(a => ma.map(similar(a, _)))
+    ma match {
+      case IndexedSeq() => IndexedSeq(IndexedSeq())
+      case _ => ma.map(a => ma.map(similar(a, _)))
+    }
   }
 }

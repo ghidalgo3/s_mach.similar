@@ -2,6 +2,18 @@ package s_mach.similar
 
 object SimilarOps {
 
+  def simByDistanceThreshold[A](maxDistance : Int)(dist : (A,A) => Int): CanSimilar[A] = {
+    new CanSimilar[A] {
+      override def similar(a1: A, a2: A): Double = {
+        dist(a1, a2) match {
+          case 0 => 1.0
+          case within if within <= maxDistance => (maxDistance - within)*1.0 / maxDistance
+          case _ => 0
+        }
+      }
+    }
+  }
+
   // this needs to calculate the union size somehow...
   // http://en.wikipedia.org/wiki/Jaccard_index
   def calcJaccardIndex(a_intersect_b_size: Int, a_size: Int, b_size: Int) : Double = {
