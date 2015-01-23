@@ -1,5 +1,5 @@
 package s_mach.similar
-
+import breeze.linalg._
 //import scala.collection.mutable
 
 /**
@@ -11,21 +11,23 @@ trait CanSimilar[A] {
   def similar(a1: A, a2: A) : Double
 
 
-  def cartesianProduct(ma1: IndexedSeq[A], ma2: IndexedSeq[A]) : IndexedSeq[IndexedSeq[Double]] = {
-    ma1.map(a => ma2.map(similar(a,_)))
-//    val result = mutable.ArraySeq.fill(ma1.length, ma2.length)(1.0)
-//    for (i <- 0 until ma1.length;
-//         j <- i until ma2.length) {
-//      result(i)(j) = similar(ma1(i), ma2(j))
-//      result(j)(i) = result(i)(j)
-//    } //use this version to cut computations in half if needed
-//    result
+  def cartesianProduct(ma1: Vector[A], ma2: Vector[A]) : Matrix[Double] = {
+    val matrix = new DenseMatrix[Double](ma1.length, ma2.length)
+    for(r <- 0 to ma1.length;
+        c <- 0 until (r * ma2.length/ma1.length)) {
+      matrix(r,c) = similar(ma1(r), ma2(c))
+      matrix(c,r) = matrix(r,c)
+    }
+    matrix
   }
 
-  def selfCartesianProduct(ma: IndexedSeq[A]) : IndexedSeq[IndexedSeq[Double]] = {
-    ma match {
-      case IndexedSeq() => IndexedSeq(IndexedSeq())
-      case _ => ma.map(a => ma.map(similar(a, _)))
+  def selfCartesianProduct(ma: Vector[A]) : Matrix[Double] = {
+    val matrix = new DenseMatrix[Double](ma.length, ma.length)
+    for(r <- 0 to ma.length;
+        c <- 0 to r) {
+      matrix(r,c) = similar(ma(r), ma(c))
+      matrix(c,r) = matrix(r,c)
     }
+    matrix
   }
 }

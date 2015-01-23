@@ -1,14 +1,24 @@
 package s_mach
 
+import scala.reflect.ClassTag
 import scala.util.matching.Regex
+import breeze.linalg._
 
 package object similar {
   implicit class SMach_Similar_PimpMyIndexedSeq[A](val self: IndexedSeq[A]) extends AnyVal {
-    def selfCartesianProduct(implicit s:CanSimilar[A]) : IndexedSeq[IndexedSeq[Double]] = s.selfCartesianProduct(self)
-    def cartesianProduct(other : IndexedSeq[A])(implicit s:CanSimilar[A]) : IndexedSeq[IndexedSeq[Double]] = s.cartesianProduct(self, other)
+
+
+    def selfCartesianProduct(implicit s:CanSimilar[A]) : Matrix[Double] = {
+      s.selfCartesianProduct(Vector[A](self.toArray))
+    }
+
+    def cartesianProduct(other : Vector[A])(implicit s:CanSimilar[A]) : Matrix[Double] = {
+      s.cartesianProduct(Vector[A](self.toArray), other)
+    }
 
 
     def centroid(implicit s:CanSimilar[A]) : A = ???
+
     def simGroupBy[K](threshhold: Double)(f: A => K)(implicit s:CanSimilar[K]) : Map[K, IndexedSeq[A]] = {
       def similarValueExists(k : K, seq : IndexedSeq[K]) : Boolean = seq.map(s.similar(k,_)).exists(_ > threshhold)
       val ks = self.map(f)
@@ -63,9 +73,14 @@ package object similar {
 
    */
   implicit class SMach_Similar_PimpMyString(val self: String) extends AnyVal {
+
     def chargrams: Iterator[Char] = self.toCharArray.iterator
-    def wordgrams: Iterator[Word] = ???
-    def ngrams(matcher: Regex) : Iterator[String] = ???
+
+    def wordgrams: Iterator[Word] = self.split(" ").filter(_.nonEmpty).map(Word).iterator
+
+    def ngrams(matcher: Regex) : Iterator[String] = {
+      ???
+    }
   }
 
   implicit class SMach_Similiar_PimpEverything[A](val self: A) extends AnyVal {
