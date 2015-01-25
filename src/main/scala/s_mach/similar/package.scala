@@ -8,14 +8,13 @@ package object similar {
   implicit class SMach_Similar_PimpMyIndexedSeq[A](val self: IndexedSeq[A]) extends AnyVal {
 
 
-    def selfCartesianProduct(implicit s:CanSimilar[A]) : Matrix[Double] = {
+    def selfCartesianProduct(implicit s: CanSimilar[A], aClassTag: ClassTag[A]) : Matrix[Double] = {
       s.selfCartesianProduct(Vector[A](self.toArray))
     }
 
-    def cartesianProduct(other : Vector[A])(implicit s:CanSimilar[A]) : Matrix[Double] = {
+    def cartesianProduct(other : Vector[A])(implicit s:CanSimilar[A], aClassTag: ClassTag[A]) : Matrix[Double] = {
       s.cartesianProduct(Vector[A](self.toArray), other)
     }
-
 
     def centroid(implicit s:CanSimilar[A]) : A = ???
 

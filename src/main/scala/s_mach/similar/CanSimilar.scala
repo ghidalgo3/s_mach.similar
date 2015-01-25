@@ -14,7 +14,7 @@ trait CanSimilar[A] {
   def cartesianProduct(ma1: Vector[A], ma2: Vector[A]) : Matrix[Double] = {
     val matrix = new DenseMatrix[Double](ma1.length, ma2.length)
     for(r <- 0 to ma1.length;
-        c <- 0 until (r * ma2.length/ma1.length)) {
+        c <- 0 to (r * ma2.length/ma1.length)) {
       matrix(r,c) = similar(ma1(r), ma2(c))
       matrix(c,r) = matrix(r,c)
     }
