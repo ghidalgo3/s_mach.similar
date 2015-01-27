@@ -83,8 +83,14 @@ package object similar {
   }
 
   implicit class SMach_Similiar_PimpEverything[A](val self: A) extends AnyVal {
-    def similar(rhs: A)(implicit canSimilar: CanSimilar[A]) : Double = canSimilar.similar(self, rhs)
-    def shingle[S](implicit shingler: Shingler[A,S]) : List[S] = shingler.shingle(self)
+
+    def similar(rhs: A)(implicit canSimilar: CanSimilar[A]) : Double = {
+      canSimilar.similar(self, rhs)
+    }
+
+    def shingle[S](implicit shingler: Shingler[A,S]) : List[S] = {
+      shingler.shingle(self)
+    }
   }
 
   implicit class SMach_Similar_PimpMyIterable[A](val self: Iterator[A]) extends AnyVal {

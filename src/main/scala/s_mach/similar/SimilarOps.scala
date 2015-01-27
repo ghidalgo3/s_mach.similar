@@ -9,13 +9,14 @@ object SimilarOps {
    * of distance, maximum distance, and the ratio of the distance to the
    * max distance. Helper functions are needed to define what "maximum distance"
    * and "distance" are for a particular type as well as the definition of "empty"
+   * This version is for subclasses of AnyRef.
    *
    * If something is empty, it has similary 0.0 to anything else.
    * @param maxDistance Computes the maximum distance between 2 As
    * @param dist Computes the distance between As
    * @param isEmpty Determines if an A is empty
    * @tparam A An A
-   * @return
+   * @return CanSimilar[A] for similarity comparison
    */
   def simByDistanceThreshold[A <: AnyRef](maxDistance : (A,A) => Int,
                                           dist : (A,A) => Int,
@@ -38,6 +39,19 @@ object SimilarOps {
     }
   }
 
+  /**
+   * Creates a CanSimilar[A] that calculates similarity based on concepts
+   * of distance, maximum distance, and the ratio of the distance to the
+   * max distance. Helper functions are needed to define what "maximum distance"
+   * and "distance" are for a particular type as well as the definition of "empty"
+   * This version is for subclasses of AnyVal.
+   *
+   * If something is empty, it has similary 0.0 to anything else.
+   * @param maxDistance Computes the maximum distance between 2 As
+   * @param dist Computes the distance between As
+   * @tparam A An A
+   * @return CanSimilar[A] for similarity comparison
+   */
   def simByDistanceThreshold[A <: AnyVal](maxDistance : Int,
                                           dist : (A,A) => Int): CanSimilar[A] = {
     new CanSimilar[A] {
