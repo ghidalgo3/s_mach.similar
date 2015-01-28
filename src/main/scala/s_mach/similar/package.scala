@@ -8,7 +8,7 @@ package object similar {
   implicit class SMach_Similar_PimpMyIndexedSeq[A](val self: IndexedSeq[A]) extends AnyVal {
 
 
-    def selfCartesianProduct(implicit s: CanSimilar[A], aClassTag: ClassTag[A]) : Matrix[Double] = {
+    def selfCartesianProduct(implicit s: CanSimilar[A], aClassTag: ClassTag[A]) : DenseMatrix[Double] = {
       s.selfCartesianProduct(Vector[A](self.toArray))
     }
 
@@ -16,7 +16,17 @@ package object similar {
       s.cartesianProduct(Vector[A](self.toArray), other)
     }
 
-    def centroid(implicit s:CanSimilar[A]) : A = ???
+    /**
+     * Returns the object most similar to all other objects
+     * @param s
+     * @return
+     */
+    def centroid(implicit s:CanSimilar[A]) : A = {
+      val simMatrix = selfCartesianProduct
+      self.zipWithIndex.maxBy[Double]{
+        case (_, index:Int) => sum(simMatrix(index, ::).t)
+      }._1
+    }
 
     def simGroupBy[K](threshhold: Double)(f: A => K)(implicit s:CanSimilar[K]) : Map[K, IndexedSeq[A]] = {
       def similarValueExists(k : K, seq : IndexedSeq[K]) : Boolean = seq.map(s.similar(k,_)).exists(_ > threshhold)
@@ -78,7 +88,7 @@ package object similar {
     def wordgrams: Iterator[Word] = self.split(" ").filter(_.nonEmpty).map(Word).iterator
 
     def ngrams(matcher: Regex) : Iterator[String] = {
-      ???
+      matcher.findAllMatchIn(self).map(_.toString).toIterator
     }
   }
 
@@ -94,10 +104,6 @@ package object similar {
   }
 
   implicit class SMach_Similar_PimpMyIterable[A](val self: Iterator[A]) extends AnyVal {
-    // 1-gram => ksliding(Range(1,1))
-    // 2-gram => ksliding(Range(2,2))
-    // 2,3-gram => ksliding(Range(2,3))
-    /** */
     def ksliding(k_range: Range) = k_range.iterator.flatMap(self.sliding(_,1))
   }
 }

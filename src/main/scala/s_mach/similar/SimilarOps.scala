@@ -43,7 +43,7 @@ object SimilarOps {
    * Creates a CanSimilar[A] that calculates similarity based on concepts
    * of distance, maximum distance, and the ratio of the distance to the
    * max distance. Helper functions are needed to define what "maximum distance"
-   * and "distance" are for a particular type as well as the definition of "empty"
+   * and "distance" are for a particular type.
    * This version is for subclasses of AnyVal.
    *
    * If something is empty, it has similary 0.0 to anything else.
