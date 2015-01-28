@@ -18,10 +18,10 @@ package object similar {
 
     /**
      * Returns the object most similar to all other objects
-     * @param s
-     * @return
+     * @param s CanSimilar of A's
+     * @return A most similar to all other A's
      */
-    def centroid(implicit s:CanSimilar[A]) : A = {
+    def centroid(implicit s:CanSimilar[A], aClassTag: ClassTag[A]) : A = {
       val simMatrix = selfCartesianProduct
       self.zipWithIndex.maxBy[Double]{
         case (_, index:Int) => sum(simMatrix(index, ::).t)

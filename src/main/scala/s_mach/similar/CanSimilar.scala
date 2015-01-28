@@ -27,7 +27,7 @@ trait CanSimilar[A] {
    * @param ma2 Vector of A's
    * @return Similarity Matrix
    */
-  def cartesianProduct(ma1: Vector[A], ma2: Vector[A]) : Matrix[Double] = {
+  def cartesianProduct(ma1: Vector[A], ma2: Vector[A]) : DenseMatrix[Double] = {
     val matrix = new DenseMatrix[Double](ma1.length, ma2.length)
     for(r <- 0 until ma1.length;
         c <- 0 to (r * ma2.length/ma1.length)) {
@@ -44,7 +44,7 @@ trait CanSimilar[A] {
    * @param ma Vector of A's
    * @return Similarity Matrix
    */
-  def selfCartesianProduct(ma: Vector[A]) : Matrix[Double] = {
+  def selfCartesianProduct(ma: Vector[A]) : DenseMatrix[Double] = {
     val matrix = new DenseMatrix[Double](ma.length, ma.length)
     for(r <- 0 until ma.length;
         c <- 0 to r) {

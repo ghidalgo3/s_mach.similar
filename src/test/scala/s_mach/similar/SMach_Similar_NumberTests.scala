@@ -4,9 +4,6 @@ import org.scalatest.{FlatSpec,Matchers}
 import breeze.linalg.DenseMatrix
 import s_mach.similar.TestObjects._
 
-/**
- * Created by Gustavo on 11/19/14.
- */
 class SMach_Similar_NumberTests extends FlatSpec with Matchers {
   "selfCartesian" should "1x1 test on numbers" in {
     import s_mach.similar.TestObjects.intSim
