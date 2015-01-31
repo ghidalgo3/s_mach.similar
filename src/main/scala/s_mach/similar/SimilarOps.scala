@@ -1,7 +1,5 @@
 package s_mach.similar
 
-import s_mach.similar.CanSimilar
-
 object SimilarOps {
 
   /**
@@ -20,8 +18,8 @@ object SimilarOps {
    */
   def simByDistanceThreshold[A <: AnyRef](maxDistance : (A,A) => Int,
                                           dist : (A,A) => Int,
-                                          isEmpty : A => Boolean): CanSimilar[A] = {
-    new CanSimilar[A] {
+                                          isEmpty : A => Boolean): Similar[A] = {
+    new Similar[A] {
       override def similar(a1: A, a2: A): Double = {
         val max = maxDistance(a1, a2)
         if (a1 eq a2) {
@@ -53,8 +51,8 @@ object SimilarOps {
    * @return CanSimilar[A] for similarity comparison
    */
   def simByDistanceThreshold[A <: AnyVal](maxDistance : Int,
-                                          dist : (A,A) => Int): CanSimilar[A] = {
-    new CanSimilar[A] {
+                                          dist : (A,A) => Int): Similar[A] = {
+    new Similar[A] {
       override def similar(a1: A, a2: A): Double = {
         if (a1 == a2) {
           1.0
@@ -67,6 +65,13 @@ object SimilarOps {
         }
       }
     }
+  }
+
+  //1. simByShingler
+  //2. generic minHash
+  //N log N for shingles on strings
+  def simByShingler[A, S](shingler : Shingler[A, S]) : Similar[A] = {
+    ???
   }
 
   // this needs to calculate the union size somehow...
