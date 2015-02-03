@@ -1,5 +1,8 @@
 package s_mach
 
+import s_mach.similar.metric.Metric
+import s_mach.similar.relative.Similar
+
 import scala.reflect.ClassTag
 import scala.util.matching.Regex
 import breeze.linalg._
@@ -12,7 +15,8 @@ package object similar {
 
   implicit class PimpMyDenseVector[A](val self: DenseVector[A]) extends AnyVal {
 
-    def selfCartesianProduct(implicit s: Similar[A], aClassTag: ClassTag[A]) : DenseMatrix[Double] = {
+    def selfCartesianProduct(implicit s: Similar[A],
+                             aClassTag: ClassTag[A]) : DenseMatrix[Double] = {
       s.selfCartesianProduct(self)
     }
 
@@ -22,15 +26,28 @@ package object similar {
 
     /**
      * Returns the object most similar to all other objects
-     * @param s CanSimilar of A's
+     * @param s Similar of A's
      * @return A most similar to all other A's
      */
-    def centroid(implicit s:Similar[A], aClassTag: ClassTag[A]) : A = {
-      ???
-//      val simMatrix = selfCartesianProduct
-//      self.zipWithIndex.maxBy[Double]{
-//        case (_, index:Int) => sum(simMatrix(index, ::).t)
-//      }._1
+    def centroid(implicit s:Similar[A],
+                 aClassTag: ClassTag[A]) : A = {
+      val simMatrix = selfCartesianProduct
+      val rowSums = sum(simMatrix, Axis._1).foldLeft( (0,0.0) )((maxInfo, next) => if() )
+
+    }
+
+    def centroid(implicit metric: Metric[A],
+                 aClassTag:ClassTag[A]) : A = {
+      val positions = self map(metric position)
+      val centroidPoint = positions
+        .foldLeft(DenseVector.zeros[Double](self.length))(_ + _) :/ self.length.toDouble
+      self.foldLeft(
+        self(0)
+      ){(candidate, next) => if (norm(metric distance(candidate, centroidPoint)) > norm(metric distance(next, centroidPoint))) {
+        next
+      } else {
+        candidate
+      }}
     }
 
     def simGroupBy[K](threshhold: Double)(f: A => K)(implicit s:Similar[K]) : Map[K, DenseVector[A]] = {

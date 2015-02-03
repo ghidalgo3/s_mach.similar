@@ -1,4 +1,5 @@
-package s_mach.similar
+package s_mach.similar.relative
+
 import breeze.linalg._
 
 /**

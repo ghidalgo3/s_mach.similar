@@ -1,9 +1,11 @@
-package s_mach.similar
+package s_mach.similar.relative
+
+import scala.util.Random
 
 object SimilarOps {
 
   /**
-   * Creates a CanSimilar[A] that calculates similarity based on concepts
+   * Creates a Similar[A] that calculates similarity based on concepts
    * of distance, maximum distance, and the ratio of the distance to the
    * max distance. Helper functions are needed to define what "maximum distance"
    * and "distance" are for a particular type as well as the definition of "empty"
@@ -14,7 +16,7 @@ object SimilarOps {
    * @param dist Computes the distance between As
    * @param isEmpty Determines if an A is empty
    * @tparam A An A
-   * @return CanSimilar[A] for similarity comparison
+   * @return Similar[A] for similarity comparison
    */
   def simByDistanceThreshold[A <: AnyRef](maxDistance : (A,A) => Int,
                                           dist : (A,A) => Int,
@@ -38,7 +40,7 @@ object SimilarOps {
   }
 
   /**
-   * Creates a CanSimilar[A] that calculates similarity based on concepts
+   * Creates a Similar[A] that calculates similarity based on concepts
    * of distance, maximum distance, and the ratio of the distance to the
    * max distance. Helper functions are needed to define what "maximum distance"
    * and "distance" are for a particular type.
@@ -48,7 +50,7 @@ object SimilarOps {
    * @param maxDistance Computes the maximum distance between 2 As
    * @param dist Computes the distance between As
    * @tparam A An A
-   * @return CanSimilar[A] for similarity comparison
+   * @return Similar[A] for similarity comparison
    */
   def simByDistanceThreshold[A <: AnyVal](maxDistance : Int,
                                           dist : (A,A) => Int): Similar[A] = {
@@ -67,62 +69,42 @@ object SimilarOps {
     }
   }
 
-  //1. simByShingler
-  //2. generic minHash
-  //N log N for shingles on strings
-  def simByShingler[A, S](shingler : Shingler[A, S]) : Similar[A] = {
-    ???
+  /**
+   * Creates a Similar[A] based on a Shingler[A,S]
+   *
+   * @param shingler
+   * @param hashFunctions
+   * @param randomSeed
+   * @tparam A
+   * @tparam S
+   * @return
+   */
+  def simByShingler[A, S](shingler : Shingler[A, S],
+                          hashFunctions : Int = 50,
+                          randomSeed : Int = 0x0BEEFDAD) : Similar[A] = new Similar[A] {
+    override def similar(a1: A, a2: A): Double = {
+      val shingleA = shingler.shingle(a1)
+      val shingleB = shingler.shingle(a2)
+      if(shingleA.isEmpty || shingleB.isEmpty) 0.0
+      else {
+        val rand = new Random(randomSeed) //need same sequence of randoms each time, close over seed
+        val hashes : IndexedSeq[S => Int] = Range(0, hashFunctions)
+            .map(_ => rand.nextInt(Integer.MAX_VALUE))
+            .map(i => (s : S) => s.hashCode() ^ i)
+        hashes
+          .map((h : S => Int) => (shingleA.map(h).min, shingleB.map(h).min))
+          .count(hash => hash._1 == hash._2).toDouble / hashFunctions
+      }
+    }
   }
 
   // this needs to calculate the union size somehow...
   // http://en.wikipedia.org/wiki/Jaccard_index
-  def calcJaccardIndex(a_intersect_b_size: Int, a_size: Int, b_size: Int) : Double = {
-    if (a_size == 0 || b_size == 0) 1 else {
-      a_intersect_b_size / (a_size + b_size)
-    }
-  }
 
   // http://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient
-  def calcDiceCoefficient(a_intersect_b_size: Int, a_size: Int, b_size: Int) : Double = {
-    if (a_size == 0 || b_size == 0) 1 else {
-      a_intersect_b_size / (a_size + b_size)
-    }
-  }
-
-  // http://en.wikipedia.org/wiki/Levenshtein_distance
-  def levenshteinDistance(s1: String, s2: String) : Int = {
-    def min(numbers: Int*): Int = numbers.min
-    val lenStr1 = s1.length
-    val lenStr2 = s2.length
-
-    val d: Array[Array[Int]] = Array.ofDim(lenStr1 + 1, lenStr2 + 1)
-    for (i <- 0 to lenStr1) d(i)(0) = i
-    for (j <- 0 to lenStr2) d(0)(j) = j
-
-    for (i <- 1 to lenStr1;
-         j <- 1 to lenStr2) {
-      val cost = if (s1(i - 1) == s2(j-1)) 0 else 1
-
-      d(i)(j) = min(
-        d(i-1)(j  ) + 1,     // deletion
-        d(i  )(j-1) + 1,     // insertion
-        d(i-1)(j-1) + cost   // substitution
-      )
-    }
-    d(lenStr1)(lenStr2)
-  }
-
-
-
-  // http://en.wikipedia.org/wiki/Hamming_distance
-  def hammingDistance(s1: String, s2: String) : Int = {
-    if (s1.length != s2.length) throw new IllegalArgumentException("Strings must be of equal length")
-    levenshteinDistance(s1, s2)
-  }
-
-
-  // http://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm
-  def needlemanWunsch(s1: String, s2: String) : Int = ???
-
-  // Implement more algos here: http://web.archive.org/web/20081224234350/http://www.dcs.shef.ac.uk/~sam/stringmetrics.html
+//  def calcDiceCoefficient(a_intersect_b_size: Int, a_size: Int, b_size: Int) : Double = {
+//    if (a_size == 0 || b_size == 0) 1 else {
+//      a_intersect_b_size / (a_size + b_size)
+//    }
+//  }
 }
