@@ -29,24 +29,26 @@ package object similar {
      * @param s Similar of A's
      * @return A most similar to all other A's
      */
-    def centroid(implicit s:Similar[A],
-                 aClassTag: ClassTag[A]) : A = {
-      val simMatrix = selfCartesianProduct
-      val rowSums = sum(simMatrix, Axis._1).foldLeft( (0,0.0) )((maxInfo, next) => if() )
+    def simCentroid(implicit s:Similar[A],
+          aClassTag: ClassTag[A]) : A = { ???
+//            val simMatrix = selfCartesianProduct
+      //      val rowSums = sum(simMatrix, Axis._1).foldLeft( (0,0.0) )((maxInfo, next) => if() )
 
     }
 
-    def centroid(implicit metric: Metric[A],
+    def metricCentroid(implicit metric: Metric[A],
                  aClassTag:ClassTag[A]) : A = {
       val positions = self map(metric position)
-      val centroidPoint = positions
+      val centroidPoint : DenseVector[Double] = positions
         .foldLeft(DenseVector.zeros[Double](self.length))(_ + _) :/ self.length.toDouble
       self.foldLeft(
         self(0)
-      ){(candidate, next) => if (norm(metric distance(candidate, centroidPoint)) > norm(metric distance(next, centroidPoint))) {
-        next
-      } else {
-        candidate
+      ){(candidate, next) => {
+        if (norm(metric.position(candidate) - centroidPoint) > norm(metric.position(next) - centroidPoint)) {
+          next
+        } else {
+          candidate
+        }
       }}
     }
 
