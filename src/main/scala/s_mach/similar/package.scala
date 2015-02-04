@@ -1,7 +1,7 @@
 package s_mach
 
 import s_mach.similar.metric.Metric
-import s_mach.similar.relative.Similar
+import s_mach.similar.relative.{Shingler, Similar}
 
 import scala.reflect.ClassTag
 import scala.util.matching.Regex
@@ -13,14 +13,16 @@ package object similar {
     def toDenseVector(implicit aClassTag: ClassTag[A]): DenseVector[A] = DenseVector[A](self.toArray)
   }
 
-  implicit class PimpMyDenseVector[A](val self: DenseVector[A]) extends AnyVal {
+  implicit class SMach_Similar_PimpMyDenseVector[A](val self: DenseVector[A]) extends AnyVal {
 
     def selfCartesianProduct(implicit s: Similar[A],
                              aClassTag: ClassTag[A]) : DenseMatrix[Double] = {
       s.selfCartesianProduct(self)
     }
 
-    def cartesianProduct(other : DenseVector[A])(implicit s:Similar[A], aClassTag: ClassTag[A]) : Matrix[Double] = {
+    def cartesianProduct(other : DenseVector[A])
+                        (implicit s:Similar[A],
+                         aClassTag: ClassTag[A]) : DenseMatrix[Double] = {
       s.cartesianProduct(self, other)
     }
 
@@ -30,15 +32,18 @@ package object similar {
      * @return A most similar to all other A's
      */
     def simCentroid(implicit s:Similar[A],
-          aClassTag: ClassTag[A]) : A = { ???
-//            val simMatrix = selfCartesianProduct
-      //      val rowSums = sum(simMatrix, Axis._1).foldLeft( (0,0.0) )((maxInfo, next) => if() )
-
+          aClassTag: ClassTag[A]) : A = {
+      self(
+        sum(selfCartesianProduct, Axis._1)
+          .toArray
+          .zipWithIndex
+          .maxBy{case (value, index) => value}._2
+      )
     }
 
     def metricCentroid(implicit metric: Metric[A],
                  aClassTag:ClassTag[A]) : A = {
-      val positions = self map(metric position)
+      val positions = self.map(metric.position)
       val centroidPoint : DenseVector[Double] = positions
         .foldLeft(DenseVector.zeros[Double](self.length))(_ + _) :/ self.length.toDouble
       self.foldLeft(
@@ -52,7 +57,9 @@ package object similar {
       }}
     }
 
-    def simGroupBy[K](threshhold: Double)(f: A => K)(implicit s:Similar[K]) : Map[K, DenseVector[A]] = {
+    def simGroupBy[K](threshhold: Double)
+                     (f: A => K)
+                     (implicit s:Similar[K]) : Map[K, DenseVector[A]] = {
       ???
       //def similarValueExists(k : K, seq : IndexedSeq[K]) : Boolean = seq.map(s.similar(k,_)).exists(_ > threshhold)
 //      val ks = self.map(f)
@@ -111,7 +118,6 @@ package object similar {
     import s_mach.string.WordSplitter.Whitespace
     import s_mach.string._
 
-    def chargrams: Iterator[Char] = self.toCharArray.iterator
 
     def wordgrams: Iterator[String] = {
       self.toWords
@@ -120,17 +126,26 @@ package object similar {
     def ngrams(matcher: Regex) : Iterator[String] = {
       matcher.split(self).iterator
     }
+
   }
 
-  implicit class SMach_Similiar_PimpEverything[A](val self: A) extends AnyVal {
+  implicit class SMach_Similar_PimpEverything[A](val self: A) extends AnyVal {
 
     def similar(rhs: A)(implicit canSimilar: Similar[A]) : Double = {
       canSimilar.similar(self, rhs)
     }
 
-//    def shingle[S](implicit shingler: Shingler[A,S]) : List[S] = {
-//      shingler.shingle(self)
-//    }
+    def shingle[S](implicit shingler: Shingler[A,S]) : List[S] = {
+      shingler.shingle(self)
+    }
+
+    def distance(rhs: A)(implicit metric : Metric[A]) = {
+      metric.distance(self, rhs)
+    }
+
+    def position(implicit metric : Metric[A]) = {
+      metric position self
+    }
 
   }
 
