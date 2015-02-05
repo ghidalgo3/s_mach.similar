@@ -43,7 +43,7 @@ class SMach_Similar_StringTests extends FlatSpec with Matchers {
         .ksliding(7 to 12)
         .map(_.mkString).toList
     })
-    longStringSim.similar(gettys1, gettys2) should be >= 0.3
+    longStringSim.similar(gettys1, gettys2) should be >= (0.3)
   }
 
   it should "compare by words" in {

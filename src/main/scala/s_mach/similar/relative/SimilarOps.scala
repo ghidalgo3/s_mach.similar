@@ -91,18 +91,19 @@ object SimilarOps {
     new Similar[A] {
 
       override def similar(a1: A, a2: A): Double = {
-        val shingleA = shingler.shingle(a1)
-        val shingleB = shingler.shingle(a2)
+        val shingleA = shingler.shingle(a1).toSet
+        val shingleB = shingler.shingle(a2).toSet
         if (shingleA.isEmpty || shingleB.isEmpty) 0.0
         else {
-          val hashFunctions = Math.max(shingleA.length, shingleB.length) / 2
-          val rand = new Random(randomSeed) //need same sequence of randoms each time, close over seed
-          val hashes: IndexedSeq[S => Int] = Range(0, hashFunctions)
-              .map(_ => rand.nextInt(Integer.MAX_VALUE))
-              .map(i => (s: S) => s.hashCode() ^ i)
-          hashes
-            .map((h: S => Int) => (shingleA.map(h).min, shingleB.map(h).min))
-            .count{case (min1, min2) => min1 == min2}.toDouble / hashFunctions
+          (shingleA intersect shingleB).size.toDouble / shingleA.union(shingleB).size
+          //          val hashFunctions = Math.max(shingleA.length, shingleB.length) / 2
+          //          val rand = new Random(randomSeed) //need same sequence of randoms each time, close over seed
+          //          val hashes: IndexedSeq[S => Int] = Range(0, hashFunctions)
+          //              .map(_ => rand.nextInt(Integer.MAX_VALUE))
+          //              .map(i => (s: S) => s.hashCode() ^ i)
+          //          hashes
+          //            .map((h: S => Int) => (shingleA.map(h).min, shingleB.map(h).min))
+          //            .count{case (min1, min2) => min1 == min2}.toDouble / hashFunctions
         }
       }
     }
