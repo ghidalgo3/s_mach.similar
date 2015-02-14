@@ -23,7 +23,7 @@ trait Metric[A] {
    * @param a2 Another A
    * @return The distance between them.
    */
-  def distance(a1 : A, a2: A) : DenseVector[Double]
+  def distance(a1 : A, a2: A) : Double
 
   /**
    * Defines a position in "space" of an A
